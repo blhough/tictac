@@ -4,21 +4,17 @@ use std::io::{stdin, stdout, Write};
 use tic::{Board, Entry};
 use tic::Entry::{X, O};
 
-fn main() -> std::io::Result<()> {
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+fn main() -> Result<()> {
 	let mut b = Board::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 
 	while let None = winner {
-		print!("{:?}'s turn: ", turn);
-		stdout().flush()?;
+		let mv = get_move(turn)?;
 
-		let mut input = String::new();
-		stdin().read_line(&mut input)?;
-
-		let m = input[0..1].parse::<usize>().unwrap();
-
-		b.ents[m] = turn;
+		b.ents[mv] = turn;
 		
 		println!("{}", b);
 
@@ -29,4 +25,15 @@ fn main() -> std::io::Result<()> {
 	}
 
 	Ok(())
+}
+
+fn get_move(turn: Entry) -> Result<usize> {
+	print!("{:?}'s turn: ", turn);
+	stdout().flush()?;
+
+	let mut input = String::new();
+	stdin().read_line(&mut input)?;
+
+	let m = input[0..1].parse::<usize>()?;
+	Ok(m)
 }
