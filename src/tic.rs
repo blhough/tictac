@@ -1,11 +1,25 @@
 use Entry::*;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Entry {
 	E,
 	X,
 	O,
 }
+
+impl std::fmt::Display for Entry {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		match self {
+			E => write!(f, "☐"),
+			X => write!(f, "X"),
+			O => write!(f, "O"),
+		}
+	}
+}
+
+pub struct Move(Entry, usize);
+
+pub struct Moves(pub Entry, pub Vec<usize>);
 
 pub struct Board {
 	pub ents: [Entry; 9],
@@ -30,6 +44,16 @@ impl Board {
 			check_row(self.ents[6], self.ents[4], self.ents[2]),
 		].iter().flatten().map(|&e| e).next()
 	}
+
+	pub fn generate_moves(&self, ent: Entry) -> Moves {
+		let moves = self.ents
+			.iter()
+			.enumerate()
+			.filter(|x| *x.1 == E)
+			.map(|x| x.0)
+			.collect::<Vec<_>>();
+		Moves(ent, moves)
+	}
 }
 
 fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
@@ -42,8 +66,8 @@ fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
 
 impl std::fmt::Display for Board {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
-		writeln!(f, "{:?} {:?} {:?}", self.ents[0], self.ents[1], self.ents[2])?;
-		writeln!(f, "{:?} {:?} {:?}", self.ents[3], self.ents[4], self.ents[5])?;
-		writeln!(f, "{:?} {:?} {:?}", self.ents[6], self.ents[7], self.ents[8])
+		writeln!(f, "{} {} {}", self.ents[0], self.ents[1], self.ents[2])?;
+		writeln!(f, "{} {} {}", self.ents[3], self.ents[4], self.ents[5])?;
+		writeln!(f, "{} {} {}", self.ents[6], self.ents[7], self.ents[8])
 	}
 }
