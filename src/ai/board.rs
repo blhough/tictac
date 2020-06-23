@@ -3,8 +3,11 @@ pub mod entry;
 use entry::Entry;
 use entry::Entry::*;
 
-pub struct Moves(pub Entry, pub Vec<usize>);
+pub type Move = usize;
 
+pub struct Moves(pub Entry, pub Vec<Move>);
+
+#[derive(Debug, Clone)]
 pub struct Board {
 	pub ents: [Entry; 9],
 }
@@ -37,6 +40,12 @@ impl Board {
 			.map(|x| x.0)
 			.collect::<Vec<_>>();
 		Moves(ent, moves)
+	}
+
+	pub fn apply_move(&self, e: Entry, m: Move) -> Board {
+		let mut b2 = self.clone();
+		b2.ents[m] = e;
+		b2
 	}
 }
 

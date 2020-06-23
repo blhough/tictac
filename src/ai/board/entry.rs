@@ -16,3 +16,21 @@ impl std::fmt::Display for Entry {
 		}
 	}
 }
+
+impl Entry {
+	pub fn to_int(&self) -> i32 {
+		match self {
+			E => 0,
+			X => 1,
+			O => -1,
+		}
+	}
+
+	pub fn flip(&self) -> Entry {
+		match self {
+			E => E,
+			X => O,
+			O => X,
+		}
+	}
+}

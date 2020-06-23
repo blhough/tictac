@@ -1,6 +1,7 @@
-mod board;
+mod ai;
 
 use std::io::{stdin, stdout, Write};
+use ai::*;
 use board::*;
 use entry::*;
 use entry::Entry::{X, O};
@@ -11,16 +12,17 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 fn main() -> Result<()> {
 	let mut b = Board::new();
 	let mut winner: Option<Entry> = None;
-	let mut turn = X;
-	let mut rng = rand::thread_rng();
+	let mut turn = O;
+	// let mut rng = rand::thread_rng();
 
 	while let None = winner {
 		let mv = if turn == X {
 			get_move(turn)?
 		} else {
-			let mvs = b.generate_moves(O).1;
-			let rnd = rng.gen_range(0, mvs.len());
-			mvs[rnd]
+			ai::get_move(&b) as usize
+			// let mvs = b.generate_moves(O).1;
+			// let rnd = rng.gen_range(0, mvs.len());
+			// mvs[rnd]
 		};
 
 		b.ents[mv] = turn;
@@ -46,11 +48,3 @@ fn get_move(turn: Entry) -> Result<usize> {
 	let m = input[0..1].parse::<usize>()?;
 	Ok(m)
 }
-
-// function negamax(node, depth, color) is
-//     if depth = 0 or node is a terminal node then
-//         return color × the heuristic value of node
-//     value := −∞
-//     for each child of node do
-//         value := max(value, −negamax(child, depth − 1, −color))
-//     return value
