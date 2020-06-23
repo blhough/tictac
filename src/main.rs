@@ -1,8 +1,9 @@
-mod tic;
+mod board;
 
 use std::io::{stdin, stdout, Write};
-use tic::{Board, Entry};
-use tic::Entry::{X, O};
+use board::*;
+use entry::*;
+use entry::Entry::{X, O};
 use rand::Rng;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
