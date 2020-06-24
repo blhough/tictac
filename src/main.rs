@@ -12,17 +12,19 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 fn main() -> Result<()> {
 	let mut b = Board::new();
 	let mut winner: Option<Entry> = None;
-	let mut turn = O;
+	let mut turn = X;
 	// let mut rng = rand::thread_rng();
+
+	// let mvs = b.generate_moves(O).1;
+	// let rnd = rng.gen_range(0, mvs.len());
+	// b.ents[mvs[rnd]] = O;
+	println!("{}", b);
 
 	while let None = winner {
 		let mv = if turn == X {
 			get_move(turn)?
 		} else {
 			ai::get_move(&b) as usize
-			// let mvs = b.generate_moves(O).1;
-			// let rnd = rng.gen_range(0, mvs.len());
-			// mvs[rnd]
 		};
 
 		b.ents[mv] = turn;
