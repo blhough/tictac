@@ -1,23 +1,23 @@
 pub mod entry;
+pub mod game;
 
+use game::*;
 use entry::Entry;
 use entry::Entry::*;
 
-pub type Move = usize;
-
-pub struct Moves(pub Entry, pub Vec<Move>);
-
 #[derive(Debug, Clone)]
-pub struct Board {
+pub struct TicTac {
 	pub ents: [Entry; 9],
 }
 
-impl Board {
-	pub fn new() -> Board {
-		Board { ents: [Entry::E; 9] }
+impl TicTac {
+	pub fn new() -> TicTac {
+		TicTac { ents: [Entry::E; 9] }
 	}
+}
 
-	pub fn check_winner(&self) -> Option<Entry> {
+impl Game<Entry> for TicTac {
+	fn check_winner(&self) -> Option<Entry> {
 		[
 			check_row(self.ents[0], self.ents[1], self.ents[2]),
 			check_row(self.ents[3], self.ents[4], self.ents[5]),
@@ -32,7 +32,7 @@ impl Board {
 		].iter().flatten().map(|&e| e).next()
 	}
 
-	pub fn generate_moves(&self, ent: Entry) -> Moves {
+	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
 		let moves = self.ents
 			.iter()
 			.enumerate()
@@ -42,10 +42,8 @@ impl Board {
 		Moves(ent, moves)
 	}
 
-	pub fn apply_move(&self, e: Entry, m: Move) -> Board {
-		let mut b2 = self.clone();
-		b2.ents[m] = e;
-		b2
+	fn apply_move(&mut self, e: Entry, m: Move) {
+		self.ents[m] = e;
 	}
 }
 
@@ -57,7 +55,7 @@ fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
 	}
 }
 
-impl std::fmt::Display for Board {
+impl std::fmt::Display for TicTac {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
 		writeln!(f, "{} {} {}", self.ents[0], self.ents[1], self.ents[2])?;
 		writeln!(f, "{} {} {}", self.ents[3], self.ents[4], self.ents[5])?;

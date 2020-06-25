@@ -4,13 +4,14 @@ use std::io::{stdin, stdout, Write};
 use ai::*;
 use board::*;
 use entry::*;
+use game::*;
 use entry::Entry::{X, O};
 use rand::Rng;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-	let mut b = Board::new();
+	let mut b = TicTac::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 	// let mut rng = rand::thread_rng();
