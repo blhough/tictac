@@ -1,3 +1,6 @@
+pub mod game;
+
+use game::Player;
 use Entry::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -17,8 +20,8 @@ impl std::fmt::Display for Entry {
 	}
 }
 
-impl Entry {
-	pub fn to_int(&self) -> i32 {
+impl Player for Entry {
+	fn to_int(&self) -> i32 {
 		match self {
 			E => 0,
 			X => 1,
@@ -26,7 +29,7 @@ impl Entry {
 		}
 	}
 
-	pub fn flip(&self) -> Entry {
+	fn flip(&self) -> Entry {
 		match self {
 			E => E,
 			X => O,

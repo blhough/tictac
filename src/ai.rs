@@ -1,11 +1,10 @@
 pub mod board;
 
-use board::game::{Move, Game};
-use board::{TicTac};
+use board::entry::game::{Move, Game, Player};
 use board::entry::{Entry};
 use board::entry::Entry::*;
 
-fn eval(b: &TicTac, d: i32) -> i32 {
+fn eval<T: Game<Entry>>(b: &T, d: i32) -> i32 {
 	match b.check_winner() {
 		Some(X) => 100 + d,
 		Some(O) => -100 -d,
@@ -13,11 +12,11 @@ fn eval(b: &TicTac, d: i32) -> i32 {
 	}
 }
 
-pub fn get_move(b: &TicTac) -> Move {
-	get_move_r(&b, 9, O, -1000, 1000).1
+pub fn get_move<G: Game<Entry>>(b: &G) -> Move {
+	get_move_r(b, 9, O, -1000, 1000).1
 }
 
-fn get_move_r(s: &TicTac, d: i32, e: Entry, mut a: i32, b: i32) -> (i32, Move) {
+fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i32, Move) {
 	if d == 0 {
 		(e.to_int() * eval(s, d), 0)
 	} else {

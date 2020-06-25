@@ -1,8 +1,7 @@
 pub mod entry;
-pub mod game;
 
+use entry::*;
 use game::*;
-use entry::Entry;
 use entry::Entry::*;
 
 #[derive(Debug, Clone)]
@@ -15,6 +14,9 @@ impl TicTac {
 		TicTac { ents: [Entry::E; 9] }
 	}
 }
+
+// impl<'a, T, U: Player> Game<U> for &'a T where T: Game<U> {}
+// impl<'a, T, U: Player> Game<U> for &'a mut T where T: Game<U> {}
 
 impl Game<Entry> for TicTac {
 	fn check_winner(&self) -> Option<Entry> {
