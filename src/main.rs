@@ -1,7 +1,7 @@
 mod ai;
+mod game;
 
 use std::io::{stdin, stdout, Write};
-use ai::*;
 use board::*;
 use entry::*;
 use game::*;

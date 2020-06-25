@@ -1,3 +1,6 @@
+pub mod board;
+pub mod entry;
+
 pub type Move = usize;
 
 pub struct Moves<T>(pub T, pub Vec<Move>);

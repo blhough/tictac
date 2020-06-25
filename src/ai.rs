@@ -1,10 +1,8 @@
-pub mod board;
+use crate::game::{Move, Game, Player};
+use crate::entry::{Entry};
+use crate::entry::Entry::*;
 
-use board::entry::game::{Move, Game, Player};
-use board::entry::{Entry};
-use board::entry::Entry::*;
-
-fn eval<T: Game<Entry>>(b: &T, d: i32) -> i32 {
+fn eval<G: Game<Entry>>(b: &G, d: i32) -> i32 {
 	match b.check_winner() {
 		Some(X) => 100 + d,
 		Some(O) => -100 -d,

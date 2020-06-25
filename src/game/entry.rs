@@ -1,6 +1,4 @@
-pub mod game;
-
-use game::Player;
+use crate::game::Player;
 use Entry::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]

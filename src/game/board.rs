@@ -1,8 +1,6 @@
-pub mod entry;
-
-use entry::*;
-use game::*;
-use entry::Entry::*;
+use crate::entry::*;
+use crate::game::*;
+use crate::entry::Entry::*;
 
 #[derive(Debug, Clone)]
 pub struct TicTac {
