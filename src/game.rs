@@ -1,5 +1,6 @@
 pub mod board;
 pub mod entry;
+pub mod ult;
 
 pub type Move = usize;
 

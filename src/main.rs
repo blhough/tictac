@@ -5,13 +5,14 @@ use std::io::{stdin, stdout, Write};
 use board::*;
 use entry::*;
 use game::*;
+use ult::*;
 use entry::Entry::{X, O};
 use rand::Rng;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-	let mut b = TicTac::new();
+	let mut b = Ult::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 	// let mut rng = rand::thread_rng();
@@ -28,7 +29,7 @@ fn main() -> Result<()> {
 			ai::get_move(&b) as usize
 		};
 
-		b.ents[mv] = turn;
+		b.apply_move(turn, mv);
 		
 		println!("{}", b);
 
@@ -48,6 +49,6 @@ fn get_move(turn: Entry) -> Result<usize> {
 	let mut input = String::new();
 	stdin().read_line(&mut input)?;
 
-	let m = input[0..1].parse::<usize>()?;
+	let m = input[0..2].trim().parse::<usize>()?;
 	Ok(m)
 }
