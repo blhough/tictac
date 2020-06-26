@@ -25,7 +25,8 @@ fn main() -> Result<()> {
 
 		let mv = if turn == X {
 			println!("{}", b);
-			get_move(turn)?
+			let mvs = b.generate_moves(turn).1;
+			get_move(turn, mvs)?
 		} else {
 			ai::get_move(&b) as usize
 		};
@@ -42,13 +43,40 @@ fn main() -> Result<()> {
 	Ok(())
 }
 
-fn get_move(turn: Entry) -> Result<usize> {
-	print!("{:?}'s turn: ", turn);
+fn get_move(turn: Entry, mvs: Vec<usize>) -> Result<usize> {
+	println!("{:?}'s turn:", turn);
 	stdout().flush()?;
 
+	let min = mvs.iter().min().unwrap();
+	let max = mvs.iter().max().unwrap();
+
+	let b_mv = if max - min < 9 {
+		max / 9
+	} else {
+		print!("Select Board:");
+		stdout().flush()?;
+		get_location().unwrap()
+	};
+
+	print!("Select Move:");
+	stdout().flush()?;
+	let l_mv = get_location().unwrap();
+
+	Ok(b_mv * 9 + l_mv)
+}
+
+fn get_location() -> Result<usize> {
 	let mut input = String::new();
 	stdin().read_line(&mut input)?;
-
-	let m = input[0..2].trim().parse::<usize>()?;
-	Ok(m)
+	match input.chars().nth(0) {
+		Some('q') => Ok(0),
+		Some('w') => Ok(1),
+		Some('e') => Ok(2),
+		Some('a') => Ok(3),
+		Some('s') => Ok(4),
+		Some('d') => Ok(5),
+		Some('z') => Ok(6),
+		Some('x') => Ok(7),
+		_ => Ok(8),
+	}
 }
