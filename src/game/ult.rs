@@ -39,14 +39,18 @@ impl Game<Entry> for Ult {
 		if let Some(last_m) = self.last_move {
 			let mut local_moves = self.brds[last_m % 9].generate_moves(ent).1;
 
-			// Can't send the player to the previous board.
-			if let Some(pos) = local_moves.iter().position(|&x| x == last_m / 9) {
-				local_moves.remove(pos);
-			}
-
-			// If there are no moves in the local board, the player can play anywhere.
-			if local_moves.len() == 0 {
-
+			// If there is more than one move available then
+			// can't send the player to the previous board.
+			if local_moves.len() > 0 {
+				if let Some(pos) = local_moves.iter().position(|&x| x == last_m / 9) {
+					local_moves.remove(pos);
+				}
+			} else { // If there are no moves in the local board, the player can play anywhere.
+				let mvs = self.brds.iter()
+					.enumerate()
+					.flat_map(|x| x.1.generate_moves(ent).1.iter().map(|&y| y + x.0 % 9 * 9).collect::<Vec<_>>())
+					.collect::<Vec<_>>();
+				return Moves(ent, mvs);
 			}
 
 			let global_moves = local_moves.iter().map(|x| x + last_m % 9 * 9).collect::<Vec<_>>();
