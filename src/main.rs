@@ -20,10 +20,11 @@ fn main() -> Result<()> {
 	// let mvs = b.generate_moves(O).1;
 	// let rnd = rng.gen_range(0, mvs.len());
 	// b.ents[mvs[rnd]] = O;
-	println!("{}", b);
 
 	while let None = winner {
+
 		let mv = if turn == X {
+			println!("{}", b);
 			get_move(turn)?
 		} else {
 			ai::get_move(&b) as usize
@@ -31,7 +32,6 @@ fn main() -> Result<()> {
 
 		b.apply_move(turn, mv);
 		
-		println!("{}", b);
 
 		winner = b.check_winner();
 		println!("{:?}", winner);

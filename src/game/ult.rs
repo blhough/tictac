@@ -73,11 +73,17 @@ fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
 
 impl std::fmt::Display for Ult {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		let mvs = self.generate_moves(X);
+
 		for i in 0..3 {
 			for j in 0..3 {
 				for k in 0..3 {
 					for l in 0..3 {
-						write!(f, "{} ", self.brds[i*3+k].ents[j*3+l])?;
+						if mvs.1.contains(&((i*3+k) * 9 + j*3+l)) {
+							self.brds[i*3+k].ents[j*3+l].print(Color::Open);
+						} else {
+							self.brds[i*3+k].ents[j*3+l].print(Color::Unset);
+						}
 					}
 					write!(f, " ")?;
 				}

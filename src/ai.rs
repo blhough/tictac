@@ -11,7 +11,7 @@ fn eval<G: Game<Entry>>(b: &G, d: i32) -> i32 {
 }
 
 pub fn get_move<G: Game<Entry>>(b: &G) -> Move {
-	get_move_r(b, 9, O, -1000, 1000).1
+	get_move_r(b, 1, O, -1000, 1000).1
 }
 
 fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i32, Move) {
@@ -19,6 +19,7 @@ fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i
 		(e.to_int() * eval(s, d), 0)
 	} else {
 		let mvs = s.generate_moves(e);
+		println!("{:?}", mvs.1);
 
 		if mvs.1.len() == 0 || s.check_winner().is_some() {
 			(e.to_int() * eval(s, d), 0)

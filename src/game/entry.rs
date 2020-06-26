@@ -11,6 +11,35 @@ pub enum Entry {
 	O,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum Color {
+	Unset,
+	Open,
+	Closed,
+}
+
+impl Entry {
+	pub fn print(&self, c: Color) {
+		match c {
+			Color::Unset => match self {
+				E => print!("☐ "),
+				X => cyan!("X "),
+				O => red!("O "),
+			},
+			Color::Open => match self {
+				E => yellow!("☐ "),
+				X => cyan!("X "),
+				O => red!("O "),
+			},
+			Color::Closed => match self {
+				E => print!("☐ "),
+				X => e_cyan!("X "),
+				O => e_red!("O "),
+			},
+		}
+	}
+}
+
 impl std::fmt::Display for Entry {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
 		match self {
