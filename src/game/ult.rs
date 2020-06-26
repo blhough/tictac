@@ -37,10 +37,10 @@ impl Game<Entry> for Ult {
 
 	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
 		if let Some(last_m) = self.last_move {
-			let mut local_moves = self.brds[last_m / 9].generate_moves(ent).1;
+			let mut local_moves = self.brds[last_m % 9].generate_moves(ent).1;
 
 			// Can't send the player to the previous board.
-			if let Some(pos) = local_moves.iter().position(|&x| x == last_m % 9) {
+			if let Some(pos) = local_moves.iter().position(|&x| x == last_m / 9) {
 				local_moves.remove(pos);
 			}
 
@@ -53,7 +53,7 @@ impl Game<Entry> for Ult {
 
 			Moves(ent, global_moves)
 		}	else {
-			self.brds[0].generate_moves(ent)
+			Moves(ent, (0..=81).collect())
 		}
 	}
 
