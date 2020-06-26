@@ -36,7 +36,25 @@ impl Game<Entry> for Ult {
 	}
 
 	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
-		self.brds[0].generate_moves(ent)
+		if let Some(last_m) = self.last_move {
+			let mut local_moves = self.brds[last_m / 9].generate_moves(ent).1;
+
+			// Can't send the player to the previous board.
+			if let Some(pos) = local_moves.iter().position(|&x| x == last_m % 9) {
+				local_moves.remove(pos);
+			}
+
+			// If there are no moves in the local board, the player can play anywhere.
+			if local_moves.len() == 0 {
+
+			}
+
+			let global_moves = local_moves.iter().map(|x| x + last_m % 9 * 9).collect::<Vec<_>>();
+
+			Moves(ent, global_moves)
+		}	else {
+			self.brds[0].generate_moves(ent)
+		}
 	}
 
 	fn apply_move(&mut self, e: Entry, m: Move) {
