@@ -1,5 +1,8 @@
+extern crate colour;
+
 use crate::game::Player;
 use Entry::*;
+use colour::*;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Entry {
@@ -11,10 +14,11 @@ pub enum Entry {
 impl std::fmt::Display for Entry {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
 		match self {
-			E => write!(f, "☐"),
-			X => write!(f, "X"),
-			O => write!(f, "O"),
-		}
+			E => print!("☐"),
+			X => cyan!("X"),
+			O => red!("O"),
+		};
+		Ok(())
 	}
 }
 
