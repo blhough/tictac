@@ -83,8 +83,11 @@ impl std::fmt::Display for Ult {
 						let b_ind = i * 3 + k;
 						let e_ind = j * 3 + l;
 						let b = &self.brds[b_ind];
-						if mvs.1.contains(&(b_ind * 9 + e_ind)) {
+						let mv = b_ind * 9 + e_ind;
+						if mvs.1.contains(&mv) {
 							b.ents[e_ind].print(Color::Open, None);
+						} else if self.last_move.is_some() && self.last_move.unwrap() == mv {
+							b.ents[e_ind].print(Color::Last, None);
 						} else if let Some(w) = self.wins[b_ind] {
 							b.ents[e_ind].print(Color::Closed, Some(w));
 						} else {
