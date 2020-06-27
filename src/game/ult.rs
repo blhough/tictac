@@ -84,10 +84,17 @@ impl Game<Entry> for Ult {
 	}
 
 	fn eval(&self, depth: i32) -> i32 {
-		let i = self.wins.iter().flat_map(|&w| w).collect::<Vec<_>>();
-		let x = i.iter().filter(|&w| *w == X).count() as i32 + depth;
-		let y = i.iter().filter(|&w| *w == O).count() as i32 - depth;
-		x + y
+		match self.check_winner() {
+			Some(X) =>  1000 + depth * 5,
+			Some(O) => -1000 - depth * 5,
+			_ => {
+				let i = self.wins.iter().flat_map(|&w| w).collect::<Vec<_>>();
+				let x = i.iter().filter(|&w| *w == X).count() as i32 * (depth + 1) *  10;
+				let y = i.iter().filter(|&w| *w == O).count() as i32 * (depth + 1) * -10;
+				x + y
+			},
+		}
+
 	}
 }
 

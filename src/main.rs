@@ -85,6 +85,7 @@ fn get_location() -> Result<usize> {
 		Some('d') => Ok(5),
 		Some('z') => Ok(6),
 		Some('x') => Ok(7),
-		_ => Ok(8),
+		Some('c') => Ok(8),
+		_ => Ok(99),
 	}
 }
