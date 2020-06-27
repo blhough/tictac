@@ -50,7 +50,7 @@ fn get_move(turn: Entry, mvs: Vec<usize>) -> Result<usize> {
 	let min = mvs.iter().min().unwrap();
 	let max = mvs.iter().max().unwrap();
 
-	let b_mv = if max - min < 9 {
+	let b_mv = if max / 9 == min / 9 {
 		max / 9
 	} else {
 		print!("Select Board:");
