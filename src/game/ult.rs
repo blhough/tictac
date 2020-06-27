@@ -6,6 +6,7 @@ use crate::game::board::TicTac;
 #[derive(Debug, Clone)]
 pub struct Ult {
 	pub brds: Vec<TicTac>,
+	wins: Vec<Option<Entry>>,
 	last_move: Option<Move>,
 }
 
@@ -13,7 +14,8 @@ impl Ult {
 	pub fn new() -> Ult {
 		Ult {
 			last_move: None,
-			brds: vec![TicTac::new(); 9]
+			brds: vec![TicTac::new(); 9],
+			wins: vec![None; 9],
 		}
 	}
 }
@@ -64,14 +66,9 @@ impl Game<Entry> for Ult {
 	fn apply_move(&mut self, e: Entry, m: Move) {
 		self.last_move = Some(m);
 		self.brds[m / 9].ents[m % 9] = e;
-	}
-}
-
-fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
-	match (a, b, c) {
-		(X, X, X) => Some(X),
-		(O, O, O) => Some(O),
-		_ => None,
+		if self.wins[m / 9].is_none() {
+			self.wins[m / 9] = self.brds[m / 9].check_winner();
+		}
 	}
 }
 
@@ -83,10 +80,15 @@ impl std::fmt::Display for Ult {
 			for j in 0..3 {
 				for k in 0..3 {
 					for l in 0..3 {
-						if mvs.1.contains(&((i*3+k) * 9 + j*3+l)) {
-							self.brds[i*3+k].ents[j*3+l].print(Color::Open);
+						let b_ind = i * 3 + k;
+						let e_ind = j * 3 + l;
+						let b = &self.brds[b_ind];
+						if mvs.1.contains(&(b_ind * 9 + e_ind)) {
+							b.ents[e_ind].print(Color::Open, None);
+						} else if let Some(w) = self.wins[b_ind] {
+							b.ents[e_ind].print(Color::Closed, Some(w));
 						} else {
-							self.brds[i*3+k].ents[j*3+l].print(Color::Unset);
+							b.ents[e_ind].print(Color::Unset, None);
 						}
 					}
 					write!(f, " ")?;
