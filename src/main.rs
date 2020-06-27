@@ -30,7 +30,6 @@ fn main() -> Result<()> {
 		};
 
 		b.apply_move(turn, mv);
-		
 
 		winner = b.check_winner();
 		println!("{:?}", winner);
@@ -38,6 +37,7 @@ fn main() -> Result<()> {
 		turn = if let X = turn { O } else { X };
 	}
 
+	println!("{}", b);
 	Ok(())
 }
 
@@ -47,20 +47,30 @@ fn get_move(turn: Entry, mvs: Vec<usize>) -> Result<usize> {
 
 	let min = mvs.iter().min().unwrap();
 	let max = mvs.iter().max().unwrap();
+	let mut g_mv;
 
-	let b_mv = if max / 9 == min / 9 {
-		max / 9
-	} else {
-		print!("Select Board:");
+	loop {
+		let b_mv = if max / 9 == min / 9 {
+			max / 9
+		} else {
+			print!("Select Board:");
+			stdout().flush()?;
+			get_location().unwrap()
+		};
+
+		print!("Select Move:");
 		stdout().flush()?;
-		get_location().unwrap()
-	};
+		let l_mv = get_location().unwrap();
+		g_mv = b_mv * 9 + l_mv;
 
-	print!("Select Move:");
-	stdout().flush()?;
-	let l_mv = get_location().unwrap();
+		if mvs.contains(&g_mv) {
+			break;
+		} else {
+			println!("Invalid Move!");
+		}
+	}
 
-	Ok(b_mv * 9 + l_mv)
+	Ok(g_mv)
 }
 
 fn get_location() -> Result<usize> {
