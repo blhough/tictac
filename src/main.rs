@@ -6,6 +6,7 @@ use entry::*;
 use game::*;
 use ult::*;
 use entry::Entry::{X, O};
+use ai::{AI, Minimax};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -13,6 +14,7 @@ fn main() -> Result<()> {
 	let mut b = Ult::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
+	let ai = Minimax::new();
 	// let mut rng = rand::thread_rng();
 
 	// let mvs = b.generate_moves(O).1;
@@ -26,7 +28,7 @@ fn main() -> Result<()> {
 			let mvs = b.generate_moves(turn).1;
 			get_move(turn, mvs)?
 		} else {
-			ai::get_move(&b) as usize
+			ai.get_move(&b) as usize
 		};
 
 		b.apply_move(turn, mv);
