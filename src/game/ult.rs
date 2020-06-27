@@ -20,21 +20,28 @@ impl Ult {
 	}
 }
 
+fn check_row(a: Option<Entry>, b: Option<Entry>, c: Option<Entry>) -> Option<Entry> {
+	match (a, b, c) {
+		(Some(X), Some(X), Some(X)) => Some(X),
+		(Some(O), Some(O), Some(O)) => Some(O),
+		_ => None,
+	}
+}
+
 impl Game<Entry> for Ult {
 	fn check_winner(&self) -> Option<Entry> {
-		// [
-		// 	check_row(self.ents[0], self.ents[1], self.ents[2]),
-		// 	check_row(self.ents[3], self.ents[4], self.ents[5]),
-		// 	check_row(self.ents[6], self.ents[7], self.ents[8]),
+		[
+			check_row(self.wins[0], self.wins[1], self.wins[2]),
+			check_row(self.wins[3], self.wins[4], self.wins[5]),
+			check_row(self.wins[6], self.wins[7], self.wins[8]),
 
-		// 	check_row(self.ents[0], self.ents[3], self.ents[6]),
-		// 	check_row(self.ents[1], self.ents[4], self.ents[7]),
-		// 	check_row(self.ents[2], self.ents[5], self.ents[8]),
+			check_row(self.wins[0], self.wins[3], self.wins[6]),
+			check_row(self.wins[1], self.wins[4], self.wins[7]),
+			check_row(self.wins[2], self.wins[5], self.wins[8]),
 
-		// 	check_row(self.ents[0], self.ents[4], self.ents[8]),
-		// 	check_row(self.ents[6], self.ents[4], self.ents[2]),
-		// ].iter().flatten().map(|&e| e).next()
-		None
+			check_row(self.wins[0], self.wins[4], self.wins[8]),
+			check_row(self.wins[6], self.wins[4], self.wins[2]),
+		].iter().flatten().map(|&e| e).next()
 	}
 
 	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
@@ -69,6 +76,13 @@ impl Game<Entry> for Ult {
 		if self.wins[m / 9].is_none() {
 			self.wins[m / 9] = self.brds[m / 9].check_winner();
 		}
+	}
+
+	fn eval(&self, depth: i32) -> i32 {
+		let i = self.wins.iter().flat_map(|&w| w).collect::<Vec<_>>();
+		let x = i.iter().filter(|&w| *w == X).count() as i32 + depth;
+		let y = i.iter().filter(|&w| *w == O).count() as i32 - depth;
+		x + y
 	}
 }
 

@@ -15,4 +15,5 @@ pub trait Game<T: Player> : Clone {
   fn generate_moves(&self, player: T) -> Moves<T>;
   fn apply_move(&mut self, player: T, m: Move);
   fn check_winner(&self) -> Option<T>;
+  fn eval(&self, depth: i32) -> i32;
 }

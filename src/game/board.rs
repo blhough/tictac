@@ -45,6 +45,14 @@ impl Game<Entry> for TicTac {
 	fn apply_move(&mut self, e: Entry, m: Move) {
 		self.ents[m] = e;
 	}
+
+	fn eval(&self, d: i32) -> i32 {
+		match self.check_winner() {
+			Some(X) => 100 + d,
+			Some(O) => -100 -d,
+			_ => 0,
+		}
+	}
 }
 
 fn check_row(a: Entry, b: Entry, c: Entry) -> Option<Entry> {
