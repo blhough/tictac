@@ -11,7 +11,7 @@ pub trait Player : Copy + PartialEq + std::fmt::Display + Clone {
 	fn flip(&self) -> Self;
 }
 
-pub trait Game<T: Player> : Clone {
+pub trait Game<T: Player> : Clone + std::fmt::Display {
   fn generate_moves(&self, player: T) -> Moves<T>;
   fn apply_move(&mut self, player: T, m: Move);
   fn check_winner(&self) -> Option<T>;

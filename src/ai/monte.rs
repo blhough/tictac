@@ -1,29 +1,30 @@
-
 use crate::game::{Move, Game, Player};
 use crate::entry::{Entry};
 use crate::entry::Entry::*;
 use crate::ai::{AI};
 
 use rand::Rng;
-use std::cell::RefCell;
-use std::rc::Rc;
+use rand::seq::SliceRandom;
+use std::collections::HashMap;
+use std::f64::consts;
 
-type Nodes = Vec<Rc<RefCell<Node>>>;
+type ID = usize;
 
 pub struct Monte {
-	root: Rc<RefCell<Node>>,
+	curr_id: ID,
+	root: ID,
+	nodes: HashMap<ID, Node>,
 }
 
 #[derive(Debug)]
 struct Node {
-	pub mv: Move,
-	player: Entry,
-	pub moves: Vec<Move>,
-	pub nodes: Nodes,
-	visits: i32,
+	mv: Move,
 	wins: i32,
+	moves: Vec<Move>,
+	nodes: Vec<ID>,
+	player: Entry,
+	visits: i32,
 }
-
 
 impl Node {
 	fn new(mv: Move, player: Entry, moves: Vec<Move>) -> Node {
@@ -37,95 +38,146 @@ impl Node {
 		}
 	}
 
-	fn random_child(&self) -> Rc<RefCell<Node>> {
+	fn random_child(&self) -> ID {
 		let mut rng = rand::thread_rng();
 		let ind = rng.gen_range(0, self.nodes.len());
-		self.nodes[ind].clone()
+		self.nodes[ind]
 	}
 }
 
 impl<G: Game<Entry>> AI<G> for Monte {
 	fn get_move(&mut self, g: &G) -> Move {
-		let mut g = g.clone();
-		for _ in 0..100 {
-			let path = self.traverse(&mut g);
-			let res = self.playout(g.clone(), path.last().unwrap().clone());
+
+		for _ in 0..10_000 {
+			let mut g2 = g.clone();
+			let path = self.traverse(&mut g2);
+			// println!("{:?}", &path);
+			let res = self.playout(g2, *path.last().unwrap());
 			self.backpropagate(path, res);
 		}
 
 		// println!("{:#?}", self.root.borrow());
 		// for n in self.root.borrow().nodes.iter() {
 		// }
-		self.root.borrow().nodes[0].borrow().mv
+		let root = self.nodes.get(&self.root).unwrap();
+		let mut max = 0;
+		let mut mv = 0;
+		println!("{:?}\n", &root);
+
+		for n in root.nodes.iter() {
+			let nn = self.nodes.get(&n).unwrap();
+			println!("{:?}", &nn);
+			let score = nn.visits;
+			if score >= max {
+				max = score;
+				mv = nn.mv;
+			}
+		}
+		mv
 	}
 }
 
 impl Monte {
 	pub fn new(player: Entry, moves: Vec<Move>) -> Monte {
-		let node = Node::new(0, player, moves);
-		Monte{ root: Rc::new(RefCell::new(node)) }
+		let node = Node::new(0, player.flip(), moves);
+		let mut nodes = HashMap::new();
+		nodes.insert(0, node);
+		Monte{
+			curr_id: 0,
+			root: 0,
+			nodes,
+		}
 	}
 
 	pub fn apply_move(&mut self, e: Entry, m: Move, moves: Vec<Move>) {
-		let child = if let Some(c) = self.root.borrow().nodes.iter().find(|&x| x.borrow().mv == m) {
-			c.clone()
-		} else {
-			Rc::new(RefCell::new(Node::new(m, e, moves)))
-		};
-		self.root = child;
+		let root = self.nodes.get(&self.root).unwrap();
+
+
+		let child = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m).unwrap();
+
+		// let child = if let Some(c) = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m) {
+		// 	*c
+		// } else {
+		// 	let id = self.next_id();
+		// 	let n = Node::new(m, e, moves);
+		// 	self.nodes.insert(id, n);
+		// 	id
+		// };
+		self.root = *child;
 	}
 
-	fn traverse<G: Game<Entry>>(&self, g: &mut G) -> Nodes {
+	fn next_id(&mut self) -> ID {
+		self.curr_id += 1;
+		self.curr_id
+	}
+
+	fn best_child(&self, n: ID) -> ID {
+		let p = self.nodes.get(&n).unwrap();
+		let mut max = 0.0;
+		let mut best = 0;
+
+		for n in p.nodes.iter() {
+			let nn = self.nodes.get(&n).unwrap();
+			let score = nn.wins as f64/ nn.visits as f64 + consts::SQRT_2 * (p.visits as f64).ln() / nn.visits as f64;
+			if score >= max {
+				max = score;
+				best = *n;
+			}
+		}
+		best
+	}
+
+	fn traverse<G: Game<Entry>>(&mut self, g: &mut G) -> Vec<ID> {
 		let mut nodes = Vec::new();
-		let mut n = self.root.clone();
+		let mut n = self.root;
 		
-		loop {
-			nodes.push(n.clone());
+		while let Some(nn) = self.nodes.get(&n) {
+			nodes.push(n);
+			// If there there are unexplored moves or the node is terminal
+			if nn.moves.len() > 0 { break; }
+			if nn.nodes.len() == 0 { break; }
 
-			let count = n.borrow().moves.len();
-			if count > 0 { break; } 
-			let count = n.borrow().nodes.len();
-			if count == 0 { break; } 
-
-			let nn = n.borrow().random_child();
-			{
-				let b = nn.borrow();
-				g.apply_move(b.player, b.mv);
-			}
-			n = nn;
-		}
-
-		let rc_n = nodes.pop().unwrap();
-		{
-			let mut b = rc_n.borrow_mut();
-
-			if b.moves.len() == 0 {
-				nodes.push(rc_n.clone());
-				return nodes;
+			if n != self.root {
+				g.apply_move(nn.player, nn.mv);
 			}
 
-			let mv = b.moves.pop().unwrap();
-
-			g.apply_move(b.player, b.mv);
-
-			let next_p = b.player.flip();
-			let new_n = Node::new(mv, next_p, g.generate_moves(next_p).1);
-
-			b.nodes.push(Rc::new(RefCell::new(new_n)));
+			// println!("{:#?}", nn);
+			n = self.best_child(n);
 		}
-		nodes.push(rc_n);
+
+		if let Some(nn) = self.nodes.get(&n) {
+			// println!("{:?}", nn.moves);
+			// Explore a new move
+			if nn.moves.len() > 0 {
+				// println!("here2");
+				let id = self.next_id();
+				let nn = self.nodes.get_mut(&n).unwrap();
+				let mv = nn.moves.pop().unwrap();
+				let player = nn.player.flip();
+				g.apply_move(player, mv);
+
+				let mut mvs = g.generate_moves(player).1;
+				mvs.shuffle(&mut rand::thread_rng());
+				nodes.push(id);
+				nn.nodes.push(id);
+				let child = Node::new(mv, player, mvs);
+				self.nodes.insert(id, child);
+			}
+		}
+
 		nodes
 	}
 
-	fn playout<G: Game<Entry>>(&self, mut g: G, n: Rc<RefCell<Node>>) -> Entry {
-		let b = n.borrow();
-		let mut w = None;
-		let p = b.player.flip();
+	fn playout<G: Game<Entry>>(&self, mut g: G, n: ID) -> Entry {
+		let nn = self.nodes.get(&n).unwrap();
+		let mut w = g.check_winner();
 		let mut rng = rand::thread_rng();
+		let mut p = nn.player.flip();
+		// println!("{}", g);
 
 		while w.is_none() {
 			let mvs = g.generate_moves(p).1;
-
+			
 			if mvs.len() == 0 {
 				w = Some(E);
 				break;
@@ -134,14 +186,17 @@ impl Monte {
 			let ind = rng.gen_range(0, mvs.len());
 			g.apply_move(p, mvs[ind]);
 			w = g.check_winner();
+			p = p.flip();
+
+			// println!("{}", g);
 		}
 
 		w.unwrap()
 	}
 
-	fn backpropagate(&self, nodes: Nodes, res: Entry) {
+	fn backpropagate(&mut self, nodes: Vec<ID>, res: Entry) {
 		for n in nodes {
-			let mut b = n.borrow_mut();
+			let mut b = self.nodes.get_mut(&n).unwrap();
 			b.visits += 2;
 			if b.player == res {
 				b.wins += 2;

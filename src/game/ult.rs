@@ -71,7 +71,7 @@ impl Game<Entry> for Ult {
 
 			Moves(ent, global_moves)
 		}	else {
-			Moves(ent, (0..=81).collect())
+			Moves(ent, (0..81).collect())
 		}
 	}
 

@@ -11,7 +11,7 @@ impl Minimax {
 
 impl<G: Game<Entry>> AI<G> for Minimax {
 	fn get_move(&mut self, b: &G) -> Move {
-		get_move_r(b, 10, O, -10000, 10000).1
+		get_move_r(b, 11, O, -10000, 10000).1
 	}
 }
 
@@ -33,7 +33,7 @@ fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i
 				new_s.apply_move(e, mv);
 				let next_val = -get_move_r(&new_s, d-1, e.flip(), -b, -a).0;
 
-				if d == 10 {
+				if d == 11 {
 					vs.push(next_val);
 				}
 
@@ -49,7 +49,7 @@ fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i
 				if a >= b { break; }
 			}
 
-			if d == 10 {
+			if d == 11 {
 				println!("{:?}", mvs.1);
 				println!("{:?}", vs);
 			}
