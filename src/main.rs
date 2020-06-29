@@ -4,17 +4,18 @@ mod game;
 use std::io::{stdin, stdout, Write};
 use entry::*;
 use game::*;
-use ult::*;
 use entry::Entry::{X, O};
 use ai::{AI, Minimax};
+use ai::monte::{Monte};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-	let mut b = Ult::new();
+	let mut b = game::board::TicTac::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
-	let ai = Minimax::new();
+
+	let mut ai = Monte::new(turn, b.generate_moves(turn).1);
 	// let mut rng = rand::thread_rng();
 
 	// let mvs = b.generate_moves(O).1;
@@ -32,6 +33,7 @@ fn main() -> Result<()> {
 		};
 
 		b.apply_move(turn, mv);
+		ai.apply_move(turn, mv, b.generate_moves(turn).1);
 
 		winner = b.check_winner();
 		println!("{:?}", winner);

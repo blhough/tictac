@@ -10,7 +10,7 @@ impl Minimax {
 }
 
 impl<G: Game<Entry>> AI<G> for Minimax {
-	fn get_move(&self, b: &G) -> Move {
+	fn get_move(&mut self, b: &G) -> Move {
 		get_move_r(b, 10, O, -10000, 10000).1
 	}
 }
