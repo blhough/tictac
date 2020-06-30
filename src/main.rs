@@ -16,7 +16,7 @@ fn main() -> Result<()> {
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 
-	let mut ai = Monte::new(turn, b.generate_moves(turn).1);
+	let mut ai = Monte::new(turn, b.generate_moves(turn));
 	let mut ai2 = Minimax::new();
 	let mut rng = rand::thread_rng();
 
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
 		};
 		
 		b.apply_move(turn, mv);
-		ai.apply_move(turn, mv, b.generate_moves(turn).1);
+		ai.apply_move(turn, mv, b.generate_moves(turn));
 		println!("{}", b);
 
 		winner = b.check_winner();

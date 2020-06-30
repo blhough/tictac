@@ -21,14 +21,14 @@ fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i
 	} else {
 		let mvs = s.generate_moves(e);
 
-		if mvs.1.len() == 0 || s.check_winner().is_some() {
+		if mvs.len() == 0 || s.check_winner().is_some() {
 			(e.to_int() * s.eval(d), 0)
 		} else {
 			let mut value = -1000000;
 			let mut best_mv = 0;
 			let mut vs = Vec::new();
 
-			for &mv in &mvs.1 {
+			for &mv in &mvs {
 				let mut new_s = s.clone();
 				new_s.apply_move(e, mv);
 				let next_val = -get_move_r(&new_s, d-1, e.flip(), -b, -a).0;
@@ -50,7 +50,7 @@ fn get_move_r<G: Game<Entry>>(s: &G, d: i32, e: Entry, mut a: i32, b: i32) -> (i
 			}
 
 			if d == 11 {
-				println!("{:?}", mvs.1);
+				println!("{:?}", mvs);
 				println!("{:?}", vs);
 			}
 

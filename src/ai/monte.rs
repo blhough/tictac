@@ -48,7 +48,7 @@ impl Node {
 impl<G: Game<Entry>> AI<G> for Monte {
 	fn get_move(&mut self, g: &G) -> Move {
 
-		for _ in 0..10_000 {
+		for _ in 0..1_000 {
 			let mut g2 = g.clone();
 			let path = self.traverse(&mut g2);
 			// println!("{:?}", &path);
@@ -156,7 +156,7 @@ impl Monte {
 				let player = nn.player.flip();
 				g.apply_move(player, mv);
 
-				let mut mvs = g.generate_moves(player).1;
+				let mut mvs = g.generate_moves(player);
 				mvs.shuffle(&mut rand::thread_rng());
 				nodes.push(id);
 				nn.nodes.push(id);
@@ -176,7 +176,7 @@ impl Monte {
 		// println!("{}", g);
 
 		while w.is_none() {
-			let mvs = g.generate_moves(p).1;
+			let mvs = g.generate_moves(p);
 			
 			if mvs.len() == 0 {
 				w = Some(E);

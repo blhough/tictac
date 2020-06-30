@@ -32,14 +32,13 @@ impl Game<Entry> for TicTac {
 		].iter().flatten().map(|&e| e).next()
 	}
 
-	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
-		let moves = self.ents
+	fn generate_moves(&self, ent: Entry) -> Moves {
+		self.ents
 			.iter()
 			.enumerate()
 			.filter(|x| *x.1 == E)
 			.map(|x| x.0)
-			.collect::<Vec<_>>();
-		Moves(ent, moves)
+			.collect()
 	}
 
 	fn apply_move(&mut self, e: Entry, m: Move) {

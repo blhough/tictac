@@ -44,9 +44,9 @@ impl Game<Entry> for Ult {
 		].iter().flatten().map(|&e| e).next()
 	}
 
-	fn generate_moves(&self, ent: Entry) -> Moves<Entry> {
+	fn generate_moves(&self, ent: Entry) -> Moves {
 		if let Some(last_m) = self.last_move {
-			let mut local_moves = self.brds[last_m % 9].generate_moves(ent).1;
+			let mut local_moves = self.brds[last_m % 9].generate_moves(ent);
 
 			match local_moves.len() {
 				// If there is more than one move available then
@@ -60,18 +60,18 @@ impl Game<Entry> for Ult {
 				0 => {
 					let mvs = self.brds.iter()
 						.enumerate()
-						.flat_map(|x| x.1.generate_moves(ent).1.iter().map(|&y| y + x.0 % 9 * 9).collect::<Vec<_>>())
+						.flat_map(|x| x.1.generate_moves(ent).iter().map(|&y| y + x.0 % 9 * 9).collect::<Vec<_>>())
 						.collect::<Vec<_>>();
-					return Moves(ent, mvs);
+					return mvs;
 				}
 				_ => {}
 			}
 
 			let global_moves = local_moves.iter().map(|x| x + last_m % 9 * 9).collect::<Vec<_>>();
 
-			Moves(ent, global_moves)
-		}	else {
-			Moves(ent, (0..81).collect())
+			global_moves
+		} else {
+			(0..81).collect()
 		}
 	}
 
@@ -110,7 +110,7 @@ impl std::fmt::Display for Ult {
 						let e_ind = j * 3 + l;
 						let b = &self.brds[b_ind];
 						let mv = b_ind * 9 + e_ind;
-						if mvs.1.contains(&mv) {
+						if mvs.contains(&mv) {
 							b.ents[e_ind].print(Color::Open, None);
 						} else if self.last_move.is_some() && self.last_move.unwrap() == mv {
 							b.ents[e_ind].print(Color::Last, None);
