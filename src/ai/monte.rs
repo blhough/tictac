@@ -1,6 +1,6 @@
 use crate::game::{Move, Game, Player};
-use crate::entry::{Entry};
-use crate::entry::Entry::*;
+use crate::game::entry::{Entry};
+use crate::game::entry::Entry::*;
 use crate::ai::{AI};
 
 use rand::Rng;
@@ -38,6 +38,7 @@ impl Node {
 		}
 	}
 
+	#[allow(dead_code)]
 	fn random_child(&self) -> ID {
 		let mut rng = rand::thread_rng();
 		let ind = rng.gen_range(0, self.nodes.len());
@@ -89,9 +90,8 @@ impl Monte {
 		}
 	}
 
-	pub fn apply_move(&mut self, e: Entry, m: Move, moves: Vec<Move>) {
+	pub fn apply_move(&mut self, _e: Entry, m: Move, _moves: Vec<Move>) {
 		let root = self.nodes.get(&self.root).unwrap();
-
 
 		let child = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m).unwrap();
 
@@ -176,7 +176,7 @@ impl Monte {
 		// println!("{}", g);
 
 		while w.is_none() {
-			let mvs = g.generate_moves(p);
+			let mvs = g.generate_moves2(p);
 			
 			if mvs.len() == 0 {
 				w = Some(E);
@@ -184,7 +184,8 @@ impl Monte {
 			}
 
 			let ind = rng.gen_range(0, mvs.len());
-			g.apply_move(p, mvs[ind]);
+			let mv = mvs[ind];
+			g.apply_move(p, mv);
 			w = g.check_winner();
 			p = p.flip();
 

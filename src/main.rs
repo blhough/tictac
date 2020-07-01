@@ -1,24 +1,23 @@
-mod ai;
-mod game;
+extern crate tictac;
 
 use std::io::{stdin, stdout, Write};
-use entry::*;
-use game::*;
-use entry::Entry::{X, O};
-use ai::{AI, Minimax};
-use ai::monte::{Monte};
-use rand::Rng;
+use tictac::game::*;
+use tictac::game::entry::*;
+use tictac::game::entry::Entry::{X, O};
+use tictac::ai::{AI, Minimax};
+use tictac::ai::monte::{Monte};
+// use rand::Rng;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 fn main() -> Result<()> {
-	let mut b = game::ult::Ult::new();
+	let mut b = ult::Ult::new();
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 
 	let mut ai = Monte::new(turn, b.generate_moves(turn));
 	let mut ai2 = Minimax::new();
-	let mut rng = rand::thread_rng();
+	// let mut rng = rand::thread_rng();
 
 	// let mvs = b.generate_moves(O).1;
 	// let rnd = rng.gen_range(0, mvs.len());
@@ -51,6 +50,7 @@ fn main() -> Result<()> {
 	Ok(())
 }
 
+#[allow(dead_code)]
 fn get_move(turn: Entry, mvs: Vec<usize>) -> Result<usize> {
 	println!("{:?}'s turn:", turn);
 	stdout().flush()?;

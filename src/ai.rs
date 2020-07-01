@@ -1,5 +1,5 @@
 use crate::game::{Move, Game};
-use crate::entry::{Entry};
+use crate::game::entry::{Entry};
 
 pub mod minimax;
 pub mod monte;

@@ -1,6 +1,6 @@
 use crate::game::{Move, Game, Player};
-use crate::entry::{Entry};
-use crate::entry::Entry::*;
+use crate::game::entry::{Entry};
+use crate::game::entry::Entry::*;
 use crate::ai::{AI, Minimax};
 
 impl Minimax {

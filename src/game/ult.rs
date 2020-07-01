@@ -1,6 +1,6 @@
-use crate::entry::*;
+use crate::game::entry::*;
 use crate::game::*;
-use crate::entry::Entry::*;
+use crate::game::entry::Entry::*;
 use crate::game::board::TicTac;
 
 #[derive(Debug, Clone)]
@@ -8,6 +8,7 @@ pub struct Ult {
 	pub brds: Vec<TicTac>,
 	wins: Vec<Option<Entry>>,
 	last_move: Option<Move>,
+	open: Moves,
 }
 
 impl Ult {
@@ -16,6 +17,7 @@ impl Ult {
 			last_move: None,
 			brds: vec![TicTac::new(); 9],
 			wins: vec![None; 9],
+			open: (0..81).collect(),
 		}
 	}
 }
@@ -42,6 +44,11 @@ impl Game<Entry> for Ult {
 			check_row(self.wins[0], self.wins[4], self.wins[8]),
 			check_row(self.wins[6], self.wins[4], self.wins[2]),
 		].iter().flatten().map(|&e| e).next()
+	}
+
+	fn generate_moves2(&mut self, ent: Entry) -> &Moves {
+		self.open = self.generate_moves(ent);
+		&self.open
 	}
 
 	fn generate_moves(&self, ent: Entry) -> Moves {
@@ -73,6 +80,10 @@ impl Game<Entry> for Ult {
 		} else {
 			(0..81).collect()
 		}
+	}
+
+	fn apply_move2(&mut self, e: Entry, m: Move) {
+		self.apply_move(e, m);
 	}
 
 	fn apply_move(&mut self, e: Entry, m: Move) {
