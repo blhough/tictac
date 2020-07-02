@@ -11,19 +11,20 @@ use std::f64::consts;
 type ID = usize;
 
 pub struct Monte {
+	iter: usize,
 	curr_id: ID,
 	root: ID,
 	nodes: HashMap<ID, Node>,
 }
 
-#[derive(Debug)]
+// #[derive(Debug)]
 struct Node {
-	mv: Move,
 	wins: i32,
+	visits: i32,
+	mv: Move,
+	player: Entry,
 	moves: Vec<Move>,
 	nodes: Vec<ID>,
-	player: Entry,
-	visits: i32,
 }
 
 impl Node {
@@ -49,7 +50,7 @@ impl Node {
 impl<G: Game<Entry>> AI<G> for Monte {
 	fn get_move(&mut self, g: &G) -> Move {
 
-		for _ in 0..10_000 {
+		for _ in 0..self.iter {
 			let mut g2 = g.clone();
 			let path = self.traverse(&mut g2);
 			// println!("{:?}", &path);
@@ -63,11 +64,11 @@ impl<G: Game<Entry>> AI<G> for Monte {
 		let root = self.nodes.get(&self.root).unwrap();
 		let mut max = 0;
 		let mut mv = 0;
-		println!("{:?}\n", &root);
+		// println!("{:?}\n", &root);
 
 		for n in root.nodes.iter() {
 			let nn = self.nodes.get(&n).unwrap();
-			println!("{:?}", &nn);
+			// println!("{:?}", &nn);
 			let score = nn.visits;
 			if score >= max {
 				max = score;
@@ -79,33 +80,32 @@ impl<G: Game<Entry>> AI<G> for Monte {
 }
 
 impl Monte {
-	pub fn new(player: Entry, moves: Vec<Move>) -> Monte {
+	pub fn new(iter: usize, player: Entry, moves: Vec<Move>) -> Monte {
 		let node = Node::new(0, player.flip(), moves);
 		let mut nodes = HashMap::new();
 		nodes.insert(0, node);
 		Monte{
+			iter,
 			curr_id: 0,
 			root: 0,
 			nodes,
 		}
 	}
 
-	pub fn apply_move(&mut self, _e: Entry, m: Move, _moves: Vec<Move>) {
+	pub fn apply_move(&mut self, e: Entry, m: Move, moves: Vec<Move>) {
 		let curr_root_id = self.root;
-		let curr_root = self.nodes.get(&self.root).unwrap();
-		let next_root_ind = curr_root.nodes.iter().position(|&x| self.nodes.get(&x).unwrap().mv == m).unwrap();
+		let curr_root = self.nodes.get(&curr_root_id).unwrap();
 
-		let curr_root = self.nodes.get_mut(&self.root).unwrap();
-		self.root = curr_root.nodes.remove(next_root_ind);
-		self.delete_rec(curr_root_id);
-		// let new_root = if let Some(c) = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m) {
-		// 	*cchil
-		// } else {
-		// 	let id = self.next_id();
-		// 	let n = Node::new(m, e, moves);
-		// 	self.nodes.insert(id, n);
-		// 	id
-		// };
+		if let Some(next_root_ind) = curr_root.nodes.iter().position(|&x| self.nodes.get(&x).unwrap().mv == m) {
+			let curr_root = self.nodes.get_mut(&self.root).unwrap();
+			self.root = curr_root.nodes.remove(next_root_ind);
+			self.delete_rec(curr_root_id);
+		} else {
+			let id = self.next_id();
+			let n = Node::new(m, e, moves);
+			self.nodes.insert(id, n);
+			self.root = id;
+		};
 	}
 
 	fn delete_rec(&mut self, n: ID) {

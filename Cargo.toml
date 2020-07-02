@@ -22,3 +22,12 @@ criterion = "0.3"
 [[bench]]
 name = "bench_ult"
 harness = false
+
+[build]
+rustflags = ["target-cpu = native"]
+
+[profile.release]
+debug = true
+lto = "fat"
+codegen-units = 1
+panic = "abort"

@@ -5,14 +5,12 @@ use crate::game::entry::Entry::*;
 #[derive(Debug, Clone)]
 pub struct TicTac {
 	pub ents: [Entry; 9],
-	open: Moves,
 }
 
 impl TicTac {
 	pub fn new() -> TicTac {
 		TicTac {
 			ents: [Entry::E; 9],
-			open: (0..9).collect(),
 		}
 	}
 }

@@ -6,7 +6,6 @@ use tictac::game::entry::*;
 use tictac::game::entry::Entry::{X, O};
 use tictac::ai::{AI, Minimax};
 use tictac::ai::monte::{Monte};
-// use rand::Rng;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -15,13 +14,9 @@ fn main() -> Result<()> {
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 
-	let mut ai = Monte::new(turn, b.generate_moves(turn));
-	let mut ai2 = Minimax::new();
-	// let mut rng = rand::thread_rng();
-
-	// let mvs = b.generate_moves(O).1;
-	// let rnd = rng.gen_range(0, mvs.len());
-	// b.ents[mvs[rnd]] = O;
+	let mut ai1 = Monte::new(50_000, turn, b.generate_moves(turn));
+	let mut ai2 = Monte::new(10_000, turn, b.generate_moves(turn));
+	// let mut ai2 = Minimax::new();
 
 	while let None = winner {
 
@@ -29,21 +24,19 @@ fn main() -> Result<()> {
 			// println!("{}", b);
 			// let mvs = b.generate_moves(turn).1;
 			// get_move(turn, mvs)?
-			ai.get_move(&b) as usize
+			ai1.get_move(&b) as usize
 		} else {
 			ai2.get_move(&b) as usize
-
-			// ai.get_move(&b) as usize
 		};
 		
 		b.apply_move(turn, mv);
-		ai.apply_move(turn, mv, b.generate_moves(turn));
+		ai1.apply_move(turn, mv, b.generate_moves(turn));
+		ai2.apply_move(turn, mv, b.generate_moves(turn));
+		print!("\x1B[2J");
 		println!("{}", b);
 
 		winner = b.check_winner();
-		println!("{:?}", winner);
-
-		turn = if let X = turn { O } else { X };
+		turn = turn.flip();
 	}
 
 	println!("{}", b);
