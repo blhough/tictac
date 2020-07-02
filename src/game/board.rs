@@ -2,8 +2,6 @@ use crate::game::entry::*;
 use crate::game::*;
 use crate::game::entry::Entry::*;
 
-use std::collections::HashSet;
-
 #[derive(Debug, Clone)]
 pub struct TicTac {
 	pub ents: [Entry; 9],
@@ -35,10 +33,6 @@ impl Game<Entry> for TicTac {
 		].iter().flatten().map(|&e| e).next()
 	}
 
-	fn generate_moves2(&mut self, _ent: Entry) -> &Moves {
-		&self.open
-	}
-
 	fn generate_moves(&self, _ent: Entry) -> Moves {
 		self.ents
 			.iter()
@@ -46,12 +40,6 @@ impl Game<Entry> for TicTac {
 			.filter(|x| *x.1 == E)
 			.map(|x| x.0)
 			.collect()
-	}
-
-	fn apply_move2(&mut self, e: Entry, m: Move) {
-		self.ents[m] = e;
-		let i = self.open.iter().position(|x| *x == m).unwrap();
-		self.open.remove(i);
 	}
 
 	fn apply_move(&mut self, e: Entry, m: Move) {

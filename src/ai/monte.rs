@@ -49,7 +49,7 @@ impl Node {
 impl<G: Game<Entry>> AI<G> for Monte {
 	fn get_move(&mut self, g: &G) -> Move {
 
-		for _ in 0..1_000 {
+		for _ in 0..10_000 {
 			let mut g2 = g.clone();
 			let path = self.traverse(&mut g2);
 			// println!("{:?}", &path);
@@ -91,19 +91,28 @@ impl Monte {
 	}
 
 	pub fn apply_move(&mut self, _e: Entry, m: Move, _moves: Vec<Move>) {
-		let root = self.nodes.get(&self.root).unwrap();
+		let curr_root_id = self.root;
+		let curr_root = self.nodes.get(&self.root).unwrap();
+		let next_root_ind = curr_root.nodes.iter().position(|&x| self.nodes.get(&x).unwrap().mv == m).unwrap();
 
-		let child = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m).unwrap();
-
-		// let child = if let Some(c) = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m) {
-		// 	*c
+		let curr_root = self.nodes.get_mut(&self.root).unwrap();
+		self.root = curr_root.nodes.remove(next_root_ind);
+		self.delete_rec(curr_root_id);
+		// let new_root = if let Some(c) = root.nodes.iter().find(|&x| self.nodes.get(&x).unwrap().mv == m) {
+		// 	*cchil
 		// } else {
 		// 	let id = self.next_id();
 		// 	let n = Node::new(m, e, moves);
 		// 	self.nodes.insert(id, n);
 		// 	id
 		// };
-		self.root = *child;
+	}
+
+	fn delete_rec(&mut self, n: ID) {
+		let node = self.nodes.remove(&n).unwrap();
+		for &c in node.nodes.iter() {
+			self.delete_rec(c);
+		}
 	}
 
 	fn next_id(&mut self) -> ID {
@@ -176,7 +185,7 @@ impl Monte {
 		// println!("{}", g);
 
 		while w.is_none() {
-			let mvs = g.generate_moves2(p);
+			let mvs = g.generate_moves(p);
 			
 			if mvs.len() == 0 {
 				w = Some(E);
