@@ -2,6 +2,8 @@ use crate::game::entry::*;
 use crate::game::*;
 use crate::game::entry::Entry::*;
 
+use rand::Rng;
+
 #[derive(Debug, Clone)]
 pub struct TicTac {
 	pub ents: [Entry; 9],
@@ -38,6 +40,17 @@ impl Game<Entry> for TicTac {
 			.filter(|x| *x.1 == E)
 			.map(|x| x.0)
 			.collect()
+	}
+
+	fn generate_random_move(&self, player: Entry) -> Option<Move> {
+		let mvs = self.generate_moves(player);
+		match mvs.len() {
+			0 => None,
+			_ => {
+				let ind = rand::thread_rng().gen_range(0, mvs.len());
+				Some(mvs[ind])
+			}
+		}
 	}
 
 	fn apply_move(&mut self, e: Entry, m: Move) {

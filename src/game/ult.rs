@@ -3,11 +3,16 @@ use crate::game::*;
 use crate::game::entry::Entry::*;
 use crate::game::board::TicTac;
 
+use rand::Rng;
+use std::collections::HashSet;
+use rand::seq::SliceRandom;
+
 #[derive(Debug, Clone)]
 pub struct Ult {
 	pub brds: Vec<TicTac>,
 	wins: Vec<Option<Entry>>,
 	last_move: Option<Move>,
+	open: [HashSet<Move>; 9],
 }
 
 impl Ult {
@@ -16,6 +21,16 @@ impl Ult {
 			last_move: None,
 			brds: vec![TicTac::new(); 9],
 			wins: vec![None; 9],
+			open: [
+				(00..09).collect(),
+				(09..18).collect(),
+				(18..27).collect(),
+				(27..36).collect(),
+				(36..45).collect(),
+				(45..54).collect(),
+				(54..63).collect(),
+				(63..72).collect(),
+				(72..81).collect()],
 		}
 	}
 }
@@ -44,40 +59,68 @@ impl Game<Entry> for Ult {
 		].iter().flatten().map(|&e| e).next()
 	}
 
-	fn generate_moves(&self, ent: Entry) -> Moves {
+	fn generate_moves(&self, _ent: Entry) -> Moves {
 		if let Some(last_m) = self.last_move {
-			let mut local_moves = self.brds[last_m % 9].generate_moves(ent);
+			let mvs = &self.open[last_m % 9];
 
-			match local_moves.len() {
+			match mvs.len() {
+				// If there are no moves in the local board, the player can play anywhere.
+				0 => self.open.iter().flatten().cloned().collect(),
+				// If there is just one move, the player must play there.
+				1 => mvs.iter().cloned().collect(),
 				// If there is more than one move available then
 				// can't send the player to the previous board.
-				x if x > 1 => {
-					if let Some(pos) = local_moves.iter().position(|&x| x == last_m / 9) {
-						local_moves.remove(pos);
-					}
-				},
-				// If there are no moves in the local board, the player can play anywhere.
-				0 => {
-					let mvs = self.brds.iter()
-						.enumerate()
-						.flat_map(|x| x.1.generate_moves(ent).iter().map(|&y| y + x.0 % 9 * 9).collect::<Vec<_>>())
-						.collect::<Vec<_>>();
-					return mvs;
-				}
-				_ => {}
+				_ => mvs.iter().cloned().filter(|&x| x % 9 != last_m / 9).collect(),
 			}
-
-			let global_moves = local_moves.iter().map(|x| x + last_m % 9 * 9).collect::<Vec<_>>();
-
-			global_moves
 		} else {
 			(0..81).collect()
 		}
 	}
 
+	fn generate_random_move(&self, _player: Entry) -> Option<Move> {
+		if let Some(last_m) = self.last_move {
+			let mvs = &self.open[last_m % 9];
+
+			match mvs.len() {
+				// If there are no moves in the local board, the player can play anywhere.
+				0 => {
+					let set = self.open.choose_weighted(
+							&mut rand::thread_rng(),
+							|x| x.len())
+						.ok()?;
+					let r = rand::thread_rng().gen_range(0, set.len());
+					set.iter().nth(r).map(|&x| x)
+				},
+				// If there is just one move, the player must play there.
+				1 => mvs.iter().cloned().nth(0),
+				// If there is more than one move available then
+				// can't send the player to the previous board.
+				_ => {
+					let mut mvs = mvs.clone();
+					mvs.remove(&last_m);
+					let r = rand::thread_rng().gen_range(0, mvs.len());
+					mvs.iter().nth(r).map(|&x| x)
+				},
+			}
+		} else {
+			Some(rand::thread_rng().gen_range(0, 81))
+		}
+
+		// let mvs = self.generate_moves(player);
+		// match mvs.len() {
+		// 	0 => None,
+		// 	_ => {
+		// 		let ind = rand::thread_rng().gen_range(0, mvs.len());
+		// 		Some(mvs[ind])
+		// 	}
+		// }
+	}
+
 	fn apply_move(&mut self, e: Entry, m: Move) {
 		self.last_move = Some(m);
-		self.brds[m / 9].ents[m % 9] = e;
+		self.brds[m / 9].apply_move(e, m % 9);
+		self.open[m / 9].remove(&m);
+
 		if self.wins[m / 9].is_none() {
 			self.wins[m / 9] = self.brds[m / 9].check_winner();
 		}

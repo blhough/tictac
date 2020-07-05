@@ -3,8 +3,8 @@ extern crate tictac;
 use std::io::{stdin, stdout, Write};
 use tictac::game::*;
 use tictac::game::entry::*;
-use tictac::game::entry::Entry::{X, O};
-use tictac::ai::{AI, Minimax};
+use tictac::game::entry::Entry::X;
+use tictac::ai::AI;
 use tictac::ai::monte::{Monte};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
@@ -14,17 +14,17 @@ fn main() -> Result<()> {
 	let mut winner: Option<Entry> = None;
 	let mut turn = X;
 
-	let mut ai1 = Monte::new(50_000, turn, b.generate_moves(turn));
-	let mut ai2 = Monte::new(10_000, turn, b.generate_moves(turn));
+	let mut ai1 = Monte::new(10_000, turn, b.generate_moves(turn));
+	let mut ai2 = Monte::new(100_000, turn, b.generate_moves(turn));
 	// let mut ai2 = Minimax::new();
 
 	while let None = winner {
+		println!("{}", b);
 
 		let mv = if turn == X {
-			// println!("{}", b);
-			// let mvs = b.generate_moves(turn).1;
-			// get_move(turn, mvs)?
-			ai1.get_move(&b) as usize
+			let mvs = b.generate_moves(turn);
+			get_move(turn, mvs)?
+			// ai1.get_move(&b) as usize
 		} else {
 			ai2.get_move(&b) as usize
 		};
@@ -32,8 +32,6 @@ fn main() -> Result<()> {
 		b.apply_move(turn, mv);
 		ai1.apply_move(turn, mv, b.generate_moves(turn));
 		ai2.apply_move(turn, mv, b.generate_moves(turn));
-		print!("\x1B[2J");
-		println!("{}", b);
 
 		winner = b.check_winner();
 		turn = turn.flip();

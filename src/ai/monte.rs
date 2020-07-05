@@ -53,14 +53,10 @@ impl<G: Game<Entry>> AI<G> for Monte {
 		for _ in 0..self.iter {
 			let mut g2 = g.clone();
 			let path = self.traverse(&mut g2);
-			// println!("{:?}", &path);
 			let res = self.playout(g2, *path.last().unwrap());
 			self.backpropagate(path, res);
 		}
 
-		// println!("{:#?}", self.root.borrow());
-		// for n in self.root.borrow().nodes.iter() {
-		// }
 		let root = self.nodes.get(&self.root).unwrap();
 		let mut max = 0;
 		let mut mv = 0;
@@ -150,15 +146,12 @@ impl Monte {
 				g.apply_move(nn.player, nn.mv);
 			}
 
-			// println!("{:#?}", nn);
 			n = self.best_child(n);
 		}
 
 		if let Some(nn) = self.nodes.get(&n) {
-			// println!("{:?}", nn.moves);
 			// Explore a new move
 			if nn.moves.len() > 0 {
-				// println!("here2");
 				let id = self.next_id();
 				let nn = self.nodes.get_mut(&n).unwrap();
 				let mv = nn.moves.pop().unwrap();
@@ -180,25 +173,16 @@ impl Monte {
 	fn playout<G: Game<Entry>>(&self, mut g: G, n: ID) -> Entry {
 		let nn = self.nodes.get(&n).unwrap();
 		let mut w = g.check_winner();
-		let mut rng = rand::thread_rng();
 		let mut p = nn.player.flip();
-		// println!("{}", g);
 
 		while w.is_none() {
-			let mvs = g.generate_moves(p);
-			
-			if mvs.len() == 0 {
-				w = Some(E);
-				break;
+			if let Some(mv) = g.generate_random_move(p) {
+				g.apply_move(p, mv);
+				w = g.check_winner();
+				p = p.flip();
+			} else {
+				return E;
 			}
-
-			let ind = rng.gen_range(0, mvs.len());
-			let mv = mvs[ind];
-			g.apply_move(p, mv);
-			w = g.check_winner();
-			p = p.flip();
-
-			// println!("{}", g);
 		}
 
 		w.unwrap()
@@ -216,42 +200,3 @@ impl Monte {
 		}
 	}
 }
-
-// # main function for the Monte Carlo Tree Search 
-// def monte_carlo_tree_search(root): 
-	
-// 	while resources_left(time, computational power): 
-// 		leaf = traverse(root) 
-// 		simulation_result = rollout(leaf) 
-// 		backpropagate(leaf, simulation_result) 
-		
-// 	return best_child(root) 
-
-// # function for node traversal 
-// def traverse(node): 
-// 	while fully_expanded(node): 
-// 		node = best_uct(node) 
-		
-// 	# in case no children are present / node is terminal 
-// 	return pick_univisted(node.children) or node 
-
-// # function for the result of the simulation 
-// def rollout(node): 
-// 	while non_terminal(node): 
-// 		node = rollout_policy(node) 
-// 	return result(node) 
-
-// # function for randomly selecting a child node 
-// def rollout_policy(node): 
-// 	return pick_random(node.children) 
-
-// # function for backpropagation 
-// def backpropagate(node, result): 
-// 	if is_root(node) return
-// 	node.stats = update_stats(node, result) 
-// 	backpropagate(node.parent) 
-
-// # function for selecting the best child 
-// # node with highest number of visits 
-// def best_child(node): 
-// 	pick child with highest number of visits 
